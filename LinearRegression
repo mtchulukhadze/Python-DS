@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+past_numbers = [3, 7, 4, 9, 8, 1, 6, 9, 10, 1, 7]
+
+X = np.array(range(1, len(past_numbers) + 1)).reshape(-1, 1)
+y = past_numbers
+
+model = LinearRegression()
+model.fit(X, y)
+
+def predict_next_number(past_numbers):
+    X_pred = np.array([len(past_numbers) + 1]).reshape(-1, 1)
+    return int(model.predict(X_pred)[0])
+
+next_number = predict_next_number(past_numbers)
+
+# Generate X values for the linear regression line
+X_line = np.array([[0], [len(past_numbers) + 2]])
+
+# Predict corresponding y values for the linear regression line
+y_line = model.predict(X_line)
+
+# Add the predicted next number to the sequence for visualization
+updated_past_numbers = past_numbers + [next_number]
+X_updated = np.array(range(1, len(updated_past_numbers) + 1)).reshape(-1, 1)
+
+# Plot the original sequence, the predicted next number, and the linear regression line
+plt.plot(X_updated, updated_past_numbers, marker='o', label='Sequence')
+plt.scatter(len(past_numbers) + 1, next_number, color='red', marker='x', label='Predicted Next')
+plt.plot(X_line, y_line, color='green', linestyle='-', label='Linear Regression Line')
+plt.xlabel('Index')
+plt.ylabel('Value')
+plt.title('Predicted Next Number using Linear Regression')
+plt.legend()
+plt.show()
+
+print("Predicted next number:", next_number)
