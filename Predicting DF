@@ -1,0 +1,15 @@
+df = sns.load_dataset('tips')
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state=42)
+model = LinearRegression()
+model.fit(X_train, Y_train)
+y_predict = model.predict(X_test)
+
+result_df = pd.DataFrame({'Actual numbers': y_test, 'Predicted numbers': y_predict})
+print(result_df.head())
+
+plt.scatter(X_test, y_test, label='actual')
+plt.plot(X_test, y_predict, linewidth=2, color='red', label='predicted')
+plt.legend()
+plt.xlabel('total_bill')
+plt.ylabel('tip')
+plt.show()
