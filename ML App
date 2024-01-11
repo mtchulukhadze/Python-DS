@@ -1,0 +1,39 @@
+import streamlit as st
+import pandas as pd
+import os
+import matplotlib.pyplot as plt
+
+from pandasgui import show
+from streamlit_pandas_profiling import st_profile_report
+
+with st.sidebar:
+    st.image("https://www.onepointltd.com/wp-content/uploads/2020/03/inno2.png")
+    st.title("AutoNickML")
+    choice = st.radio("Navigation", ["Upload", "Profiling", "Modelling", "Download"])
+    st.info("This project application helps you build and explore your data.")
+st.write("hello")
+
+if os.path.isfile(r"D:\Data\AI & ML\save_dataset\datatest.csv"):
+    df = pd.read_csv(r"D:\Data\AI & ML\save_dataset\datatest.csv", index_col=None)
+
+if choice == "Upload":
+    st.title("upload your dataset")
+    file = st.file_uploader("upload your dataset")
+    if file:
+        df = pd.read_csv(file)
+        df.to_csv(r"D:\Data\AI & ML\datatest.csv", index=None)
+        st.dataframe(df)
+
+if choice == "Profiling":
+    #pass
+    df = pd.read_csv("your_data.csv")
+    st.title("Profiling data")
+    # Displaying a simple overview using PandasGUI
+    plt.plot(df.Region, df.Total)
+    plt.show()
+
+if choice == "Modelling":
+    pass
+if choice == "Download":
+    pass
+
