@@ -1,0 +1,41 @@
+# Import necessary libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+
+# Generate some sample data
+np.random.seed(42)
+X = np.random.rand(100, 1) * 10
+y = (X.squeeze() > 5).astype(int)  # Binary classification task
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a Logistic Regression model
+model = LogisticRegression()
+
+# Train the model on the training data
+model.fit(X_train, y_train)
+
+# Make predictions on the test data
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+accuracy = metrics.accuracy_score(y_test, y_pred)
+precision = metrics.precision_score(y_test, y_pred)
+recall = metrics.recall_score(y_test, y_pred)
+
+print(f"Accuracy: {accuracy:.2f}")
+print(f"Precision: {precision:.2f}")
+print(f"Recall: {recall:.2f}")
+
+# Plot the decision boundary
+plt.scatter(X, y, color='blue', marker='.')
+plt.xlabel('Feature')
+plt.ylabel('Target')
+plt.title('Logistic Regression Decision Boundary')
+plt.axhline(0.5, color='red', linestyle='--', label='Decision Boundary')
+plt.legend()
+plt.show()
