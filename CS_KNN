@@ -1,0 +1,16 @@
+import pandas as pd
+
+from sklearn.datasets import load_iris 
+X, y = load_iris(return_X_y=True)
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state=1)
+
+from sklearn.neighbors import KNeighborsClassifier
+model = KNeighborsClassifier(n_neighbors = 3)
+model.fit(X_train, y_train)
+model.score(X_test, y_test)
+
+import numpy as np
+new_data = np.array([[6.0, 3.0, 5.0, 1.0]])
+model.predict_proba(new_data)
