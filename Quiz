@@ -1,0 +1,29 @@
+
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+
+data = pd.read_csv(r"C:\Users\User\Desktop\Football.csv")
+data = data[["age", "height_cm", "weight_kg", "overall", "potential", "attacking_crossing"]]
+
+kmeans = KMeans(n_clusters=4)
+tsne = TSNE(n_components=2, perplexity=40)
+scaler = StandardScaler()
+
+data2 = scaler.fit_transform(data)
+y = kmeans.fit_predict(data2)
+
+plt.scatter(data2[:, 0], data2[:, 1], c=y)
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=90, c='red')
+plt.show()
+
+data3 = tsne.fit_transform(data2)
+y2 = kmeans.fit_predict(data3)
+
+plt.scatter(data3[:, 0], data3[:, 1], c=y2)
+plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], s=90, c='red')
+plt.show()
+
+https://mail.google.com/mail/u/0/#inbox/FMfcgzGxSlSxcggRGbTPvCczqhvQwQjx?projector=1&messagePartId=0.2
