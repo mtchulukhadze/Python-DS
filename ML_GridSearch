@@ -1,0 +1,28 @@
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# read dataset
+data = pd.read_csv(r'https://raw.githubusercontent.com/nsethi31/Kaggle-Data-Credit-Card-Fraud-Detection/master/creditcard.csv')
+print(data.head())
+
+# check missing values
+print(data.isnull().sum())
+
+# separate dependence and independence
+y = data['Class'].values
+X = data.drop("Class", axis=1).values
+
+# divide data into train and test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+# read algorythm and gridsearch method
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV
+
+model = LogisticRegression(max_iter=100000)
+parameters = {
+    "C": [0.7, 0.2, 0.3, 0.1],
+    "fit_intercept": [True, False]
+}
+hybrid = GridSearchCV(model, parameters, scoring='accuracy', cv=3, verbose=4)
+hybrid.fit(X_train, y_train)
