@@ -40,5 +40,13 @@ model.compile(optimizer='sgd', loss='binary_crossentropy', metrics=['accuracy'])
 model.fit(X_train, y_train, batch_size=30, epochs = 100, validation_data=(X_test, y_test), verbose=1)
 # epochs - ციკლის რაოდენობა, როდესაც ერთიდაიგივე მონაცემს უშვებ მოდელში
 
+
+y_pred = model.predict(X_test)
+y_pred_binary = (y_pred > 0.5).astype(int)
+
+comparison_df = pd.DataFrame({'Actual': y_test, 'Predicted': y_pred_binary.flatten()})
+print(comparison_df.to_excel("predicted_data.xlsx", index=False))
+
+
 print(data.head())
 print(np.array([data.loc[0].values[:-1]]))
