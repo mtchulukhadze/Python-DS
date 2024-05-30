@@ -1,0 +1,44 @@
+from keras.api.models import Sequential
+from keras.api.layers import Dense, BatchNormalization, Dropout, GaussianNoise
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+
+data = pd.read_csv(r"https://raw.githubusercontent.com/jbrownlee/Datasets/master/haberman.csv")
+data.columns =["Age","Year of Operation","Positive axillary","Survival"]
+data['Survival'] = data['Survival'] - data['Survival'].min()
+print(data.head())
+y = data['Survival'].values
+X = data.drop('Survival', axis=1).values
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# create one layer neural network
+model = Sequential()
+model.add(Dense(units=200, activation='relu', input_dim=X_train.shape[1]))
+model.add(BatchNormalization())
+model.add(Dense(units=100, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dense(units=50, activation='relu'))
+# model.add(Dropout(rate=0.3))
+model.add(Dense(units=40, activation='relu'))
+model.add(GaussianNoise(stddev=0.99))
+model.add(Dense(units=30, activation='relu'))
+
+# how to add layer, that have one output, binar
+model.add(Dense(units=1, activation='sigmoid'))
+
+model.compile(optimizer='sgd', loss='binary_crossentropy', metrics=['accuracy'])
+
+# loss = 'binary_crossentropy' რომ ისწავლოს, ორ კლასს შორის გარჩევადობა
+
+model.fit(X_train, y_train, batch_size=30, epochs = 100, validation_data=(X_test, y_test), verbose=1)
+# epochs - ციკლის რაოდენობა, როდესაც ერთიდაიგივე მონაცემს უშვებ მოდელში
+
+print(data.head())
+print(np.array([data.loc[0].values[:-1]]))
