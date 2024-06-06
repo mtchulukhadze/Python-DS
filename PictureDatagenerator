@@ -1,0 +1,22 @@
+from keras.api.models import Sequential
+from keras.api.layers import Dense, Flatten
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
+from keras.api.applications.vgg19 import VGG19
+
+base_model = VGG19(include_top=False, input_shape=(224, 224, 3), pooling='avg')
+for layer in base_model.layers:
+    layer.trainable = False
+model = Sequential()
+model.add(base_model)
+model.add(Dense(units=20, activation='relu'))
+model.add(Dense(units=3, activation='softmax'))
+model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
+
+data_loader = ImageDataGenerator(rescale=1/255.0)
+train = data_loader.flow_from_directory('Medical_Data/Medical_Data/train',
+                                        target_size=(224, 224), class_mode='categorical', batch_size=32)
+
+valid = data_loader.flow_from_directory('Medical_Data/Medical_Data/test',
+                                        target_size=(224, 224), class_mode='categorical', batch_size=32)
+
+model.fit(train, batch_size=32, epochs=100, validation_data=valid, verbose=1)
