@@ -1,0 +1,38 @@
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+
+# kaggle dataset link: https://www.kaggle.com/datasets/iammustafatz/diabetes-prediction-dataset
+
+dataset = pd.read_csv(r"C:\Users\User\Desktop\diabetes_prediction_dataset.csv")
+print(dataset.to_excel(r"C:\Users\User\Desktop\Diabetes Data.xlsx"))
+
+df_processed = pd.get_dummies(dataset, columns=["gender", "smoking_history"], drop_first=True)
+
+X = df_processed.drop(columns="diabetes")
+y = df_processed["diabetes"]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, classification_report
+
+knn = KNeighborsClassifier(n_neighbors=5)
+
+knn.fit(X_train, y_train)
+
+y_pred = knn.predict(X_test)
+
+accurancy = accuracy_score(y_test, y_pred)
+print(accurancy)
+
+df_with_predictions = pd.DataFrame(X_test, columns=X.columns)
+df_with_predictions['diabetes_actual'] = y_test.values
+df_with_predictions['diabetes_predicted'] = y_pred
+
+print(df_with_predictions.to_excel(r"C:\Users\User\Desktop\Predicted Data.xlsx", sheet_name="Sheet2"))
