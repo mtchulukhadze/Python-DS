@@ -30,3 +30,33 @@ print(y_pred) # გამოყანილი პროგნოზი
 # მოდელის შეფასება
 accurancy = accuracy_score(y_test, y_pred)
 print(f"accurancy: {accurancy * 100}%")
+
+
+
+# Linear Regression
+
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score
+
+X = 2 * np.random.rand(100, 1)
+y = 3 + 4 * X + np.random.rand(100, 1)
+
+model = LinearRegression()
+model.fit(X, y)
+
+y_pred = model.predict(X)
+
+accurancy = r2_score(y, y_pred)
+print(f"accurancy {round(accurancy, 2)} %")
+
+# DataFrame ის შექმნა რეალურ და პროგნოზირებულების შესადარებლად
+result_df = pd.DataFrame({"actual": y.flatten(), "predicted": y_pred.flatten()})
+print(result_df)
+
+plt.scatter(X, y, color="blue", label="actual_data")
+plt.plot(X, y_pred)
+plt.show()
