@@ -1,0 +1,20 @@
+import pandas as pd
+from transformers import pipeline
+sentiment_pipeline = pipeline("sentiment-analysis")
+
+
+data = pd.read_csv("https://raw.githubusercontent.com/aws-samples/aws-machine-learning-university-accelerated-nlp/master/data/examples/AMAZON-REVIEW-DATA-CLASSIFICATION.csv",
+                   usecols=['reviewText', 'summary', 'isPositive'])
+print(data.head())
+
+predicted_sentiments = []
+
+for text in data['reviewText']:
+    sentiment = sentiment_pipeline(text)[0]['label']
+    predicted_sentiments.append(sentiment)
+
+data['Predicted'] = predicted_sentiments
+print(data.head().to_string())
+
+
+print(sentiment_pipeline("nika don't ml"))
