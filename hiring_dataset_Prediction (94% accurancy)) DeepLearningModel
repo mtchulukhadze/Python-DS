@@ -1,0 +1,54 @@
+
+# dataset link: https://www.kaggle.com/datasets/rabieelkharoua/predicting-hiring-decisions-in-recruitment-data
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, BatchNormalization, Dropout, GaussianNoise
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+
+data = pd.read_csv(r"D:\Data\AI & ML\recruitment_data.csv")
+
+categorical_cols = ['Age', 'Gender', 'EducationLevel', 'ExperienceYears',
+       'PreviousCompanies', 'DistanceFromCompany', 'InterviewScore',
+       'SkillScore', 'PersonalityScore', 'RecruitmentStrategy',
+       'HiringDecision']
+
+data = pd.get_dummies(data, columns=categorical_cols)
+
+y = data['HiringDecision']
+X = data.drop('HiringDecision', axis=1)
+
+X_train , X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# create one layer neural network
+model = Sequential()
+model.add(Dense(units=200, activation='relu', input_dim=X_train.shape[1]))
+model.add(BatchNormalization())
+model.add(Dense(units=100, activation='relu'))
+model.add(BatchNormalization())
+model.add(Dense(units=50, activation='relu'))
+# model.add(Dropout(rate=0.3))
+model.add(Dense(units=40, activation='relu'))
+model.add(GaussianNoise(stddev=0.99))
+model.add(Dense(units=30, activation='relu'))
+
+# how to add layer, that have one output, binar
+model.add(Dense(units=1, activation='sigmoid'))
+
+model.compile(optimizer='sgd', loss='binary_crossentropy', metrics=['accuracy'])
+
+model.fit(X_train, y_train, batch_size=30, epochs = 100, validation_data=(X_test, y_test), verbose=1)
+
+X_full = scaler.transform(data.drop('HiringDecision', axis=1))  # Ensure all data is scaled
+y_pred_full = model.predict(X_full)
+y_pred_binary_full = (y_pred_full > 0.5).astype(int)
+
+comparison_df = pd.DataFrame({'Actual': data['HiringDecision'].values, 'Predicted': y_pred_binary_full.flatten()})
+print(comparison_df.to_excel(r"D:\Data\AI & ML\recruitment_data_pred.xlsx"))
+
+print(f"{(comparison_df[comparison_df['Actual'] != comparison_df['Predicted']].shape[0]) / data.shape[0] * 100} %")
