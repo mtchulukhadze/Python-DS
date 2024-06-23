@@ -1,0 +1,58 @@
+# now we can use saved model to traind and test dataset
+
+# saved model: model.save('customer_churn_model.h5')
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import accuracy_score
+from tensorflow.keras.models import load_model
+
+# DeepLearning Tensorflow
+
+scaler = MinMaxScaler()
+
+model = load_model('customer_churn_model.h5')
+
+data = pd.read_csv('customer_churn_data.csv')
+
+data['Churn'].replace("Yes", 1, inplace=True)
+data['Churn'].replace("No", 0, inplace=True)
+
+data.drop('customerID', axis=1, inplace=True)
+
+# List of categorical columns to be one-hot encoded
+categorical_cols = ['gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines',
+                    'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
+                    'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract',
+                    'PaperlessBilling', 'PaymentMethod']
+
+# One-hot encode the categorical columns
+data = pd.get_dummies(data, columns=categorical_cols)
+
+# Separate the features and target variable
+y = data['Churn']
+X = data.drop('Churn', axis=1)
+
+# Split the data into training and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+# Scale the features
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Ensure all data is scaled
+X_full = scaler.transform(X)
+
+# Predict churn probabilities
+y_pred_full = model.predict(X_full)
+
+y_pred_binary_full = (y_pred_full > 0.5).astype(int)
+
+# Create a DataFrame to compare actual and predicted churn values
+comparison_df = pd.DataFrame({'Actual': y.values, 'Predicted': y_pred_binary_full.flatten()})
+
+print(y_pred_binary_full)
+accuracy = accuracy_score(y, y_pred_binary_full)
+print(f"Accuracy: {accuracy * 100} %")
