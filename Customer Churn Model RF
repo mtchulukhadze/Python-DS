@@ -1,0 +1,46 @@
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.ensemble import RandomForestClassifier
+
+data = pd.read_csv('customer_churn_data.csv')
+data['Churn'].replace("Yes", 1, inplace=True)
+data['Churn'].replace("No", 0, inplace=True)
+
+data.drop('customerID', axis=1, inplace=True)
+
+data['TotalCharges'] = pd.to_numeric(data['TotalCharges'], errors='coerce')
+data['TotalCharges'].fillna(data['TotalCharges'].mean(), inplace=True)
+
+categorical_cols = ['gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines',
+                    'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
+                    'TechSupport', 'StreamingTV', 'StreamingMovies', 'Contract',
+                    'PaperlessBilling', 'PaymentMethod']
+
+# One-hot encode the categorical columns
+data = pd.get_dummies(data, columns=categorical_cols)
+
+y = data['Churn']
+X = data.drop('Churn', axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+random_forest = RandomForestClassifier(n_estimators=100, random_state=1)
+random_forest.fit(X_train, y_train)
+
+y_pred_test = random_forest.predict(X_test)
+
+X_full = scaler.transform(X)
+y_pred_full = random_forest.predict(X_full)
+
+df = pd.DataFrame({
+    "Actual": y.values,
+    "Predicted": y_pred_full
+})
+
+print(f"{round((df[df['Actual'] != df['Predicted']].shape[0]) / df.shape[0] * 100,2)} %")
