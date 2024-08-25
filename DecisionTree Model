@@ -1,0 +1,68 @@
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+from sklearn.metrics import r2_score
+
+regtree = tree.DecisionTreeRegressor(max_depth=3)
+
+df = pd.read_csv(r"D:\Data\AI & ML\Udemy_DT, RF, XGBoost\Decision Tree\Movie_regression.csv", header=0)
+print(df.head())
+
+print(df.info())
+
+# Avg Time
+print(df['Time_taken'].mean())
+df.fillna({'Time_taken': df['Time_taken'].mean()}, inplace=True)
+x = df[df['Collection'] == 27200]
+
+# convert string to int
+df = pd.get_dummies(df, columns=['3D_available', 'Genre'], drop_first=True)
+
+df.replace({'3D_available_YES': {True: 1}}, inplace=True)
+df.replace({'3D_available_YES': {False: 0}}, inplace=True)
+
+df.replace({'Genre_Comedy': {True: 1}}, inplace=True)
+df.replace({'Genre_Comedy': {False: 0}}, inplace=True)
+
+df.replace({'Genre_Drama': {True: 1}}, inplace=True)
+df.replace({'Genre_Drama': {False: 0}}, inplace=True)
+
+df.replace({'Genre_Thriller': {True: 1}}, inplace=True)
+df.replace({'Genre_Thriller': {False: 0}}, inplace=True)
+
+y = df['Collection']
+X = df.drop(['Collection'], axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+regtree.fit(X_train, y_train)
+
+y_train_pred = regtree.predict(X_train)
+y_test_pred = regtree.predict(X_test)
+
+print(r2_score(y_train, y_train_pred))
+print(r2_score(y_test, y_test_pred))
+
+
+train_results = pd.DataFrame({
+    'Actual': y_train,
+    'Predict': y_train_pred
+    }
+)
+
+test_results = pd.DataFrame({
+    'Actual': y_test,
+    'Predict': y_test_pred
+})
+
+Data = pd.concat([train_results, test_results])
+print(Data.to_excel(r"D:\Data\AI & ML\Udemy_DT, RF, XGBoost\Decision Tree\Output data.xlsx", sheet_name='Sheet2', index=False))
+
+plt.subplot(1, 2, 1)
+plt.scatter(y_train, y_train_pred, color='blue', alpha=0.5)
+plt.title('Training Set: Actual vs Predicted')
+plt.xlabel('Actual Values')
+plt.ylabel('Predicted Values')
