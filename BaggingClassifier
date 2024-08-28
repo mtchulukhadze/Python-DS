@@ -1,0 +1,13 @@
+
+from sklearn.ensemble import BaggingClassifier
+bag_cl = BaggingClassifier(
+    base_estimator=clstree,
+    n_estimators=1000,
+    bootstrap=True,
+    n_jobs=1,
+    random_state=42
+)
+
+bag_cl.fit(X_train, y_train)
+
+accuracy_score(y_train, bag_cl.predict(X_train))
