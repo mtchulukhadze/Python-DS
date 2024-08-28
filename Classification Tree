@@ -1,0 +1,41 @@
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn import tree
+
+from sklearn.metrics import accuracy_score
+
+clstree = tree.DecisionTreeClassifier(max_depth=3)
+
+data = r"D:\Data\AI & ML\Udemy_DT, RF, XGBoost\Classification Tree\Movie_classification.csv"
+df = pd.read_csv(data)
+df.head()
+
+df.fillna({'Time_taken': df['Time_taken'].mean()}, inplace=True)
+
+df = pd.get_dummies(df, columns=['3D_available', 'Genre'], drop_first=True)
+
+y = df['Start_Tech_Oscar']
+X = df.drop('Start_Tech_Oscar', axis=1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+
+clstree.fit(X_train, y_train)
+
+y_train_pred = clstree.predict(X_train)
+y_test_pred = clstree.predict(X_test)
+
+
+y_train_df = pd.DataFrame({
+    "actual": y_train,
+    "model": y_train_pred
+})
+
+y_test_df = pd.DataFrame({
+    "actual": y_test,
+    "model": y_test_pred
+})
+
+predicted_df = pd.concat([y_train_df, y_test_df])
+
+accuracy_score(y_test, y_test_pred)
