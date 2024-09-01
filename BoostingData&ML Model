@@ -7,21 +7,27 @@ from sklearn.metrics import accuracy_score
 
 data = r"D:\Data\AI & ML\Udemy_DT, RF, XGBoost\Classification Tree\Movie_classification.csv"
 
+# Ada Boost
 class AdaAcc:
     def __init__(self):
         self.y_train = None
         self.y_test = None
 
-    def Predict(self, dframe):
-        clstree = tree.DecisionTreeClassifier(max_depth=3)
-
+    def Data(self, dframe):
         df = pd.read_csv(dframe)
 
         df.fillna({'Time_taken': df['Time_taken'].mean()}, inplace=True)
         df = pd.get_dummies(df, columns=['3D_available', 'Genre'], drop_first=True)
 
-        y = df['Start_Tech_Oscar']
-        X = df.drop(['Start_Tech_Oscar'], axis=1)
+        self.y = df['Start_Tech_Oscar']
+        self.X = df.drop(['Start_Tech_Oscar'], axis=1)
+
+
+    def Predict(self):
+        clstree = tree.DecisionTreeClassifier(max_depth=3)
+
+        y = self.y
+        X = self.X
 
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
@@ -45,7 +51,7 @@ class AdaAcc:
 
     def PredictBoost(self):
         from sklearn.ensemble import AdaBoostClassifier
-        ada_boost = AdaBoostClassifier(learning_rate=0.02, n_estimators=5000)
+        ada_boost = AdaBoostClassifier(learning_rate=0.05, n_estimators=5000)
 
         ada_boost.fit(self.X_train, self.y_train)
 
@@ -53,12 +59,35 @@ class AdaAcc:
         y_train_pred = ada_boost.predict(self.X_train)
 
         return (
-            ("test", accuracy_score(self.y_test, y_test_pred)),
-            ("train", accuracy_score(self.y_train, y_train_pred))
+            ("train", accuracy_score(self.y_train, y_train_pred)),
+            ("test", accuracy_score(self.y_test, y_test_pred))
+        )
+
+    def XGBoost(self):
+        # gxboost
+
+        import xgboost as xgb
+        xgboost = xgb.XGBClassifier(max_depth=5, n_estimators=10000, learning_rate=0.03, n_jobs=-1)
+
+        xgboost.fit(self.X_train, self.y_train)
+
+        y_test_pred = xgboost.predict(self.X_test)
+        y_train_pred = xgboost.predict(self.X_train)
+
+        return (
+            ("train", accuracy_score(self.y_train, y_train_pred)),
+            ("test", accuracy_score(self.y_test, y_test_pred))
         )
 
 
-a = AdaAcc()
-a.Predict(data)
-a.PredictBoost()
+c = AdaAcc()
+c.Data(data)
+
+print("DT", c.Predict())
+print("AdaBoosted", c.PredictBoost())
+print("XGBoost", c.XGBoost())
+
+DT (('Train', 0.6534653465346535), ('test', 0.5490196078431373))
+AdaBoosted (('train', 0.9628712871287128), ('test', 0.6078431372549019))
+XGBoost (('train', 1.0), ('test', 0.6372549019607843))
 
