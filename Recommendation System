@@ -1,0 +1,106 @@
+
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('0', '567', '33', '1', '6277', '21075');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('1', '667', '48', '1', '6111', '34200');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('2', '123', '70', '0', '1732', '24500');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('3', '834', '34', '1', '2327', '21075');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('4', '641', '60', '0', '6049', '26800');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('5', '632', '74', '0', '3954', '21075');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('6', '215', '36', '0', '5443', '26800');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('7', '439', '33', '1', '2320', '21075');
+INSERT INTO MY_TABLE("", custid, age, gender, revenue, predicted_productid) VALUES ('8', '402', '62', '0', '5198', '26800');
+
+
+import pandas as pd
+df = pd.read_excel(r"E:\OneDrive\Desktop\Book1.xlsx")
+
+class Rec_System:
+    def __init__(self, Data):
+        self.Data = Data
+
+    def Train_Data(self):
+
+        from sklearn.model_selection import train_test_split
+        from sklearn.neighbors import KNeighborsClassifier
+        from sklearn.preprocessing import StandardScaler
+
+        df = self.Data
+        df['custid'] = df['custid'].str[-3:]
+
+        X = df.drop(['productid'], axis=1)
+        y = df['productid']
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+
+        model = KNeighborsClassifier(n_neighbors=5)
+        model.fit(X_train_scaled, y_train)
+
+        y_train_pred = model.predict(X_train_scaled)
+        y_test_pred = model.predict(X_test_scaled)
+
+        self.y_train = y_train
+        self.y_test = y_test
+        self.y_train_pred = y_train_pred
+        self.y_test_pred = y_test_pred
+
+        self.model = model
+        self.scaler = scaler
+
+    def Accuracy(self):
+        from sklearn.metrics import accuracy_score
+        print("Training accuracy:", accuracy_score(self.y_train, self.y_train_pred))
+        print("Test accuracy:", accuracy_score(self.y_test, self.y_test_pred))
+
+    def Model_Save(self):
+        import joblib
+        joblib.dump(self.model, r'D:\Data\AI & ML\credo AI\knn_model.pkl')
+        joblib.dump(self.scaler, r'D:\Data\AI & ML\credo AI\scaler.pkl')
+
+ml = Rec_System(Data=df)
+ml.Train_Data()
+ml.Accuracy()
+ml.Model_Save()
+
+
+import pandas as pd
+import joblib
+
+class Predict_Data:
+    def __init__(self, Data):
+        self.Data = Data
+    def Imp_ml(self, loaded_model, scaler):
+        self.loaded_model = loaded_model
+        self.scaler = scaler
+
+        return self.Data
+
+    def Predict(self):
+        new_data = self.Data
+        # new_data['custid'] = new_data['custid'].str[-3:]
+
+        new_data_scaled = self.scaler.transform(new_data)
+        predictions = self.loaded_model.predict(new_data_scaled)
+
+        new_data['predicted_productid'] = predictions
+        return new_data
+
+loaded_model = joblib.load(r'D:\Data\AI & ML\credo AI\knn_model.pkl')
+scaler = joblib.load(r'D:\Data\AI & ML\credo AI\scaler.pkl')
+
+new_data = pd.DataFrame({
+    'custid': ['LO567', 'LO667', 'LO123', 'LO834', 'LO641', 'LO632', 'LO215', 'LO439', 'LO402'],
+    'age': [33, 48, 70, 34, 60, 74, 36, 33, 62],
+    'gender': [1, 1, 0, 1, 0, 0, 0, 1, 0],
+    'revenue': [6277, 6111, 1732, 2327, 6049, 3954, 5443, 2320, 5198]
+})
+
+predict  = Predict_Data(Data=new_data)
+predict.Imp_ml(loaded_model, scaler)
+predict.Predict()
+
+
+
+
