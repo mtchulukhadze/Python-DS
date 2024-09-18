@@ -85,7 +85,16 @@ class Predict_Data:
         predictions = self.loaded_model.predict(new_data_scaled)
 
         new_data['predicted_productid'] = predictions
-        return new_data
+
+        products = {
+            21075: "Ivcc",
+            26800: 'U1',
+            22000: "A1"
+        }
+        new_data['product'] = new_data['predicted_productid'].map(products)
+
+        table = [['custid', 'age', 'gender', 'revenue', 'product']]
+        return table
 
 loaded_model = joblib.load(r'D:\Data\AI & ML\credo AI\knn_model.pkl')
 scaler = joblib.load(r'D:\Data\AI & ML\credo AI\scaler.pkl')
